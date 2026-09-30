@@ -52,6 +52,6 @@
 
 ## 六、下一步
 
-- 等 GitHub 仓库地址，把本项目 push 上去（见仓库 `README.md`）。
-- 用 `ai-learning-journal` 模板沉淀更多项目心得。
+- 已纳入 `ai-learning-collection` 统一仓库的 `projects/jicshi-radar/`（见仓库 `README.md`）。
+- 用本仓库根目录 `_LEARNING_TEMPLATE.md` 模板沉淀更多项目心得。
 - 补参赛文案三件套（产品名 / 一句话定位 / 痛点）。
