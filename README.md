@@ -16,7 +16,7 @@
 
 | 项目 | 一句话 | 心得链接 | 代码仓库 |
 |---|---|---|---|
-| 急厕雷达 | 旅行找厕所单文件应用 | [jicshi-radar.md](./jicshi-radar.md) | 待推送后补链接 |
+| 急厕雷达 | 旅行找厕所单文件应用 | [jicshi-radar.md](./projects/jicshi-radar/jicshi-radar.md) | 待推送后补链接 |
 
 ## 隐私红线
 
