@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="HrowbQF8TevXm85ytoF4Gl">
+<head data-page-node-id="Njd4kT47LJRlU0LU77D4AW">
+<meta charset="UTF-8" data-page-node-id="4HJCzXARGEJ4huKwdysmLA">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="GMqaOkKNa39d3MwM1guOVp">
+<meta name="theme-color" content="#0b1526" data-page-node-id="jrD37w7FFV94iYRkaIrOdI">
+<title>急厕雷达 · 旅行如厕急救助手</title>
+<style>
+  :root{
+    --bg:#f4f6fb; --card:#ffffff; --ink:#0f1c33; --sub:#5b6b84; --line:#e5eaf3;
+    --red:#f43f5e; --red-d:#be123c; --amber:#f59e0b; --green:#10b981; --blue:#3b82f6; --sky:#38bdf8;
+    --navy:#0b1526; --navy2:#16233f;
+    --sh-sm:0 1px 2px rgba(15,28,51,.05),0 2px 10px rgba(15,28,51,.06);
+    --sh-md:0 6px 20px rgba(15,28,51,.10);
+    --sh-lg:0 16px 40px rgba(15,28,51,.18);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink)}
+
+  /* ---------- 头部 ---------- */
+  header{position:sticky;top:0;z-index:20;color:#fff;padding:14px 20px;
+    background:radial-gradient(900px 340px at 88% -90%,rgba(56,189,248,.28),transparent 62%),
+               radial-gradient(600px 260px at -10% 120%,rgba(244,63,94,.22),transparent 60%),
+               linear-gradient(135deg,#0b1526,#16233f);
+    box-shadow:0 2px 14px rgba(11,21,38,.25)}
+  .brand{display:flex;align-items:center;gap:12px;max-width:1200px;margin:0 auto}
+  .logo{width:40px;height:40px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;
+    background:linear-gradient(135deg,#f43f5e,#fb7185);box-shadow:0 4px 14px rgba(244,63,94,.45);position:relative;overflow:hidden}
+  .logo::after{content:'';position:absolute;inset:0;background:conic-gradient(from 0deg,transparent 0 70%,rgba(255,255,255,.45) 82%,transparent 90%);animation:spin 3.5s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .brand h1{margin:0;font-size:19px;font-weight:800;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+  .brand .tag{font-size:12px;color:rgba(255,255,255,.62);margin-top:2px;font-weight:400}
+
+  /* ---------- 工具栏 ---------- */
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;align-items:center;
+    background:rgba(255,255,255,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);position:sticky;top:68px;z-index:15}
+  .toolbar select,.toolbar button{font-size:14px;border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 14px;color:var(--ink);cursor:pointer;transition:box-shadow .15s,transform .1s,background .15s}
+  .toolbar select{min-width:140px;font-weight:600}
+  .toolbar select:hover,.toolbar button:hover{box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+  .toolbar button:active{transform:scale(.96)}
+  .btn-emergency{background:linear-gradient(135deg,#f43f5e,#e11d48);color:#fff;border:none !important;font-weight:800;flex:1;min-width:170px;border-radius:14px !important;display:flex;align-items:center;justify-content:center;gap:7px;letter-spacing:1px;box-shadow:0 6px 18px rgba(244,63,94,.38)}
+  .btn-emergency.on{background:linear-gradient(135deg,#be123c,#9f1239);animation:breath 1.4s ease-in-out infinite}
+  @keyframes breath{0%,100%{box-shadow:0 6px 18px rgba(244,63,94,.38)}50%{box-shadow:0 6px 26px rgba(244,63,94,.62)}}
+  .btn-trip{border:1.5px solid var(--blue) !important;color:var(--blue);font-weight:700;background:#fff}
+  .btn-trip.on{background:#eff6ff}
+  .chip{padding:8px 13px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-size:13px;cursor:pointer;user-select:none;transition:.15s;font-weight:600;color:var(--sub)}
+  .chip:hover{border-color:#cbd5e1}
+  .chip.on{background:#fff1f2;border-color:var(--red);color:var(--red-d);font-weight:700;box-shadow:0 2px 8px rgba(244,63,94,.2)}
+  .spacer{flex:1}
+  .gear{font-size:17px;padding:8px 12px}
+
+  /* ---------- 主布局 ---------- */
+  main{display:flex;align-items:stretch;min-height:calc(100vh - 230px);max-width:1200px;margin:0 auto;width:100%}
+  #mapArea{flex:1;min-height:400px;height:calc(100vh - 230px);position:relative;overflow:hidden;margin:14px 0 14px 14px;border-radius:20px;
+    background:radial-gradient(850px 480px at 50% 38%,#152747,#0a1424 72%);box-shadow:inset 0 0 0 1px rgba(148,163,184,.12),var(--sh-md)}
+  #mapArea .hint{position:absolute;left:12px;top:12px;background:rgba(13,25,45,.72);backdrop-filter:blur(8px);padding:7px 12px;border-radius:10px;font-size:12px;color:#cbd5e1;z-index:5;max-width:78%;border:1px solid rgba(148,163,184,.16)}
+  .legend{position:absolute;right:12px;bottom:12px;background:rgba(13,25,45,.72);backdrop-filter:blur(8px);padding:8px 11px;border-radius:10px;font-size:11px;color:#cbd5e1;z-index:5;line-height:1.9;border:1px solid rgba(148,163,184,.16)}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  #mapArea .zoom-ctrl{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:7px;z-index:6}
+  #mapArea .zoom-ctrl button{width:36px;height:36px;border:none;border-radius:11px;background:rgba(13,25,45,.72);backdrop-filter:blur(8px);
+    font-size:17px;line-height:1;color:#e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    border:1px solid rgba(148,163,184,.18);transition:.12s}
+  #mapArea .zoom-ctrl button:hover{background:rgba(30,48,80,.85)}
+  #mapArea .zoom-ctrl button:active{transform:scale(.9)}
+  #mapArea svg{display:block;touch-action:none}
+
+  /* 雷达元素 */
+  .mk{transform-box:fill-box;transform-origin:center;cursor:pointer;transition:transform .12s ease}
+  .mk:hover{transform:scale(1.22)}
+  .radar-label{font-size:10px;fill:#c9d4e6;paint-order:stroke;stroke:rgba(9,18,34,.9);stroke-width:2.8px;stroke-linejoin:round;font-weight:600}
+  .pop-in{animation:fade .45s ease both}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  /* 实时地图“我的位置”脉冲圈 */
+  @keyframes mePulse{0%{transform:scale(.5);opacity:.85}100%{transform:scale(2.6);opacity:0}}
+  .me-ring{width:20px;height:20px;border-radius:50%;background:rgba(37,99,235,.55);box-shadow:0 0 0 2px rgba(255,255,255,.9) inset;animation:mePulse 1.8s ease-out infinite}
+
+  /* ---------- 右侧列表 ---------- */
+  #listArea{width:400px;max-width:44%;padding:14px;display:flex;flex-direction:column;gap:10px;overflow-y:auto}
+  .banner{background:linear-gradient(135deg,#f43f5e,#fb7185);color:#fff;border-radius:18px;padding:15px 17px;box-shadow:0 10px 26px rgba(244,63,94,.35);display:none;animation:slidein .25s ease}
+  .banner.show{display:block}
+  @keyframes slidein{from{transform:translateY(-8px);opacity:.4}to{transform:translateY(0);opacity:1}}
+  .banner .big{font-size:23px;font-weight:800;margin:3px 0}
+  .banner .go{margin-top:9px;display:inline-block;background:#fff;color:var(--red-d);font-weight:800;padding:8px 18px;border-radius:999px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+  .card{background:var(--card);border-radius:16px;padding:13px 15px;box-shadow:var(--sh-sm);cursor:pointer;border:1.5px solid transparent;transition:transform .14s ease,box-shadow .14s ease,border-color .14s;animation:fadeup .32s ease both}
+  @keyframes fadeup{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .card:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
+  .card.nearest{border-color:var(--red);background:linear-gradient(180deg,#fff5f6,#fff)}
+  .card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .card .name{font-weight:800;font-size:15px}
+  .card .dist{flex-shrink:0;text-align:right;background:#f1f5f9;border-radius:11px;padding:5px 11px;font-size:11px;color:var(--sub);line-height:1.35}
+  .card .dist b{display:block;font-size:16px;color:var(--ink);font-weight:800}
+  .card.nearest .dist{background:#ffe4e6;color:var(--red-d)}
+  .card .type{font-size:11px;color:var(--sub);margin-top:5px}
+  .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+  .tg{font-size:11px;padding:2.5px 8px;border-radius:7px;border:1px solid var(--line);font-weight:600}
+  .tg.ok{color:#047857;border-color:#a7f3d0;background:#ecfdf5}
+  .tg.no{color:#64748b;border-color:#e2e8f0;background:#f8fafc}
+  .tg.warn{color:#b45309;border-color:#fde68a;background:#fffbeb}
+  .tg.bad{color:#be123c;border-color:#fecdd3;background:#fff1f2}
+  .empty{padding:48px 18px;text-align:center;color:var(--sub);font-size:14px;line-height:1.8}
+  .empty .big-ico{font-size:38px;display:block;margin-bottom:8px;opacity:.7}
+
+  /* ---------- 行程提醒（时间线） ---------- */
+  .trip-head{font-weight:800;font-size:14px;margin:4px 2px;color:var(--blue);display:flex;align-items:center;gap:6px}
+  .trip-rem{display:flex;gap:11px;background:#fff;border-radius:16px;padding:12px 14px;box-shadow:var(--sh-sm);margin-bottom:8px;position:relative;transition:transform .12s,box-shadow .12s;animation:fadeup .32s ease both}
+  .trip-rem:hover{transform:translateX(3px);box-shadow:var(--sh-md)}
+  .trip-rem::before{content:'';position:absolute;left:22px;top:38px;bottom:-10px;width:2px;background:linear-gradient(#bfdbfe,#dbeafe)}
+  .trip-rem:last-child::before{display:none}
+  .trip-rem .tn{background:linear-gradient(135deg,#3b82f6,#60a5fa);color:#fff;width:23px;height:23px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;box-shadow:0 2px 6px rgba(59,130,246,.4);position:relative;z-index:1}
+  .trip-rem .tname{font-weight:700;font-size:14px}
+  .trip-rem .tmeta{font-size:12px;color:var(--sub);margin:3px 0;line-height:1.55}
+  .trip-rem .tsug{font-size:12px;color:#059669;font-weight:600}
+
+  /* ---------- 弹窗 ---------- */
+  .modal-mask{position:fixed;inset:0;background:rgba(10,18,34,.5);backdrop-filter:blur(3px);display:none;align-items:flex-end;justify-content:center;z-index:50}
+  .modal-mask.show{display:flex}
+  .modal{background:#fff;width:100%;max-width:540px;border-radius:22px 22px 0 0;max-height:88vh;overflow-y:auto;padding:10px 20px 28px;animation:up .25s cubic-bezier(.2,.8,.3,1)}
+  @keyframes up{from{transform:translateY(46px);opacity:.5}to{transform:translateY(0);opacity:1}}
+  .modal::before{content:'';display:block;width:40px;height:4px;border-radius:99px;background:#dbe2ec;margin:4px auto 12px}
+  .modal h2{margin:2px 0 6px;font-size:21px;font-weight:800}
+  .modal .field{font-size:14px;color:var(--sub);margin:7px 0;line-height:1.6}
+  .modal .field b{color:var(--ink)}
+  .modal .close{position:sticky;top:0;text-align:right;float:right;margin-bottom:-30px}
+  .modal .close span{display:inline-block;background:#f1f5f9;border-radius:50%;width:32px;height:32px;line-height:32px;text-align:center;cursor:pointer;font-size:15px;color:var(--sub);transition:.12s}
+  .modal .close span:hover{background:#e2e8f0;transform:rotate(90deg)}
+  .hero{background:linear-gradient(135deg,#0b1526,#1e3a5f);border-radius:16px;padding:14px 16px;color:#fff;margin:10px 0 12px}
+  .hero .h-type{font-size:11px;background:rgba(255,255,255,.16);border-radius:7px;padding:2px 8px;display:inline-block;margin-bottom:5px}
+  .hero .h-name{font-size:19px;font-weight:800}
+  .report-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+  .report-item{background:#f6f8fb;border-radius:13px;padding:10px}
+  .report-item .lab{font-size:12px;color:var(--sub);margin-bottom:6px;font-weight:600}
+  .seg{display:flex;gap:4px}
+  .seg button{flex:1;border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 0;font-size:12px;cursor:pointer;transition:.12s;font-weight:600}
+  .seg button:hover{border-color:#94a3b8}
+  .seg button.sel{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 2px 6px rgba(59,130,246,.35)}
+  .clean-seg button.sel{background:var(--green);border-color:var(--green);box-shadow:0 2px 6px rgba(16,185,129,.35)}
+  .save-note{font-size:12px;color:var(--green);height:16px;margin-top:8px;font-weight:600}
+  .btn-primary{width:100%;margin-top:8px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;border-radius:13px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 6px 16px rgba(37,99,235,.35);transition:.12s}
+  .btn-primary:active{transform:scale(.98)}
+  .btn-danger{width:100%;margin-top:8px;background:linear-gradient(135deg,#f43f5e,#e11d48);color:#fff;border:none;border-radius:13px;padding:12px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 6px 16px rgba(244,63,94,.35)}
+  .btn-ghost{width:100%;margin-top:8px;background:#f1f5f9;border:none;border-radius:13px;padding:11px;font-weight:600;cursor:pointer;color:var(--sub)}
+  .btn-green{width:100%;margin-top:8px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:13px;padding:12px;font-weight:800;cursor:pointer;box-shadow:0 6px 16px rgba(5,150,105,.35)}
+  .modal input[type=text],.modal input:not([type]),.modal select,.modal input[type=time]{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;font-size:14px;outline:none;transition:border-color .15s;background:#fff}
+  .modal input:focus,.modal select:focus{border-color:var(--blue)}
+  #stopList .si{display:flex;justify-content:space-between;align-items:center;background:#f6f8fb;border-radius:11px;padding:9px 12px;margin-bottom:6px;font-size:13px}
+  #stopList .si button{background:#fff1f2;color:var(--red-d);border:none;border-radius:8px;padding:4px 10px;cursor:pointer;font-weight:700}
+
+  /* ---------- 底部诊断 ---------- */
+  footer{background:#fff;border-top:1px solid var(--line);padding:11px 18px;font-size:12px;color:var(--sub);line-height:1.7;max-width:1200px;margin:0 auto;width:100%}
+  footer b{color:var(--ink)}
+  .diag-ok{color:#059669;font-weight:700} .diag-warn{color:#b45309;font-weight:700}
+
+  /* ---------- 实时地图：自定义 DOM 覆盖物标记（DOMOverlay） ---------- */
+  .live-mk{position:absolute;left:0;top:0;will-change:left,top}
+  .mk-pin{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;
+    background:#10b981;color:#fff;border:2.5px solid #fff;box-shadow:0 3px 9px rgba(0,0,0,.4);transition:transform .12s}
+  .live-mk[style*="pointer-events:auto"]:hover .mk-pin{transform:scale(1.18)}
+  .mk-pin.red{background:#f43f5e;animation:pinPulse 1.5s ease-in-out infinite}
+  @keyframes pinPulse{0%,100%{box-shadow:0 3px 9px rgba(0,0,0,.4),0 0 0 0 rgba(244,63,94,.55)}50%{box-shadow:0 3px 9px rgba(0,0,0,.4),0 0 0 11px rgba(244,63,94,0)}}
+  .mk-tag{margin-top:3px;background:#0f172a;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:7px;white-space:nowrap;
+    box-shadow:0 2px 6px rgba(0,0,0,.35)}
+  .mk-pin.red + .mk-tag{background:#be123c}
+  .live-mk.user{pointer-events:none;z-index:3}
+  .user-dot{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.45)}
+  .user-pulse{position:absolute;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:rgba(37,99,235,.5);animation:mePulse 1.8s ease-out infinite}
+  .user-tag{position:absolute;left:0;top:-30px;transform:translateX(-50%);background:#2563eb;color:#fff;font-size:11px;font-weight:800;
+    padding:2px 9px;border-radius:999px;white-space:nowrap;box-shadow:0 2px 8px rgba(37,99,235,.5);border:1.5px solid #fff}
+  .toolbar select#rangeSel{min-width:104px}
+
+  @media(max-width:820px){
+    main{flex-direction:column}
+    #mapArea{min-height:320px;margin:12px 12px 0}
+    #listArea{width:100%;max-width:100%;padding:12px}
+    .toolbar{top:62px}
+    .btn-emergency{order:-1}
+  }
+</style>
+</head>
+<body data-page-node-id="Elb4jhglhJdAn9SzLTPGh9">
+<header data-page-node-id="8EobGlAbUfBZDwbquoo9Tt">
+  <div class="brand" data-page-node-id="w2ANi87bDGBNCtw0wSH2tq">
+    <div class="logo" data-page-node-id="fFAwSimRNBmKiyY7Lj6syA">📡</div>
+    <div data-page-node-id="Nvcg9tqJyP3rB6arVps2Xx">
+      <h1 data-page-node-id="yzgZAraRvKEhcN3Dl4Pmzm">急厕雷达</h1>
+      <div class="tag" data-page-node-id="3Dme7NaNq0K0CXACa60KfO">旅行如厕急救助手 · 一键找最近、真能用的厕所 · 行程沿途自动标</div>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar" data-page-node-id="AaoEtPc8suiguXz7peH5vk">
+  <select id="spotSel" title="选择景区/城市（离线示例）" data-page-node-id="Hxhkogw6gozJQ329DNgCcD"></select>
+  <select id="rangeSel" title="搜索 / 展示范围" data-page-node-id="rangeSel"></select>
+  <button id="locBtn" title="定位到我" data-page-node-id="YwnPOtUmjE1KhYDmfASMoC">📍 定位到我</button>
+  <button id="tripBtn" class="btn-trip" data-page-node-id="1iIKgHrvY2bgFMiDvj134i">🧭 行程</button>
+  <button id="emergencyBtn" class="btn-emergency" data-page-node-id="JywoIoIU1IPezLUjt91iCS">🚨 紧急找厕</button>
+  <span class="spacer" data-page-node-id="wygTF3WdF4Ed4g5RUpDpmp"></span>
+  <button id="refreshBtn" style="display:none" title="重新搜索附近公厕">🔄 附近</button>
+  <span class="chip" data-f="baby" data-page-node-id="F29pdTcEZZmgFDfzRBcQ3a">🍼 带娃</span>
+  <span class="chip" data-f="old" data-page-node-id="MxfFVz9q4HkIngKfNAln1k">♿ 老人</span>
+  <span class="chip" data-f="female" data-page-node-id="gX90KhikYlQDEkdDdiNqbg">👩 女性</span>
+  <button id="gearBtn" class="gear" title="设置" data-page-node-id="yC6ErsyVHbH6UNmA5AzuKG">⚙️</button>
+</div>
+
+<main data-page-node-id="iAO88IoSWZQ2Dkg5GZ7B0f">
+  <div id="mapArea" data-page-node-id="r6lx4WcRjGrgoGhVaUGzKw"></div>
+  <div id="listArea" data-page-node-id="vXuYBJHE11QBOfMsnTmo2s">
+    <div class="banner" id="banner" data-page-node-id="16i5Px0b4UDGKrB5rS4Bu8"></div>
+    <div id="tripReminders" data-page-node-id="dIjtK7cjSE96LRIyjIqx0k"></div>
+    <div id="list" data-page-node-id="lJT7DGWK052BUiC5xEgjGD"></div>
+  </div>
+</main>
+
+<footer id="diag" data-page-node-id="WlBAscCuzUFk6tlOmsA87W"></footer>
+
+<!-- 详情 -->
+<div class="modal-mask" id="detailMask" data-page-node-id="EyJkE0AUWdPltPRnlf57Ob"><div class="modal" id="detailModal" data-page-node-id="ZeWIFNmoHqtfJCBowwxLm6"></div></div>
+<!-- 设置 -->
+<div class="modal-mask" id="setMask" data-page-node-id="Z4UhiGUkcBnRNGb9PcE7Dm"><div class="modal" data-page-node-id="7jT5dOYRHLUJThm7JZELV7">
+  <div class="close" data-page-node-id="GTs04jVv1DCvneQozyoYEg"><span id="setClose" data-page-node-id="GOtcqw3JLS0pyNBBcoB9Ed">✕</span></div>
+  <h2 data-page-node-id="R4gpOs47UJu20TzmYv6UAn">⚙️ 设置</h2>
+  <div class="field" data-page-node-id="GqPfv8pgnTvmFnMp0N4cIv">腾讯地图 Key（选填）：启用后可使用<b data-page-node-id="uMWzziyskYrGQdJrO4AzMK">实时地图</b>与<b data-page-node-id="uIIXBGYrBe0GQCNCSYejwj">真实公厕 POI 搜索</b>。未填写则使用离线雷达模式，内置示例数据，零配置即可演示。</div>
+  <input id="keyInput" placeholder="粘贴你的腾讯地图 Key" data-page-node-id="gus8Bsj0iZYvAr4FmXtGjZ">
+  <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14px" data-page-node-id="jPEN7TAFPduzGMZhu2uCdC"><input type="checkbox" id="liveChk" style="width:auto" data-page-node-id="qIA6UmAwcAgTfxcDpjuulF"> 启用实时地图（需有效 Key）</label>
+  <div class="field" style="margin-top:8px;font-size:12px" data-page-node-id="Ezc44uVVWOY4BYcrgthPLw">Key 申请：腾讯位置服务控制台 → 创建应用 → 勾选 WebService + JS API。在该控制台「授权域名」中必须加入本页域名：<b id="whitelistHost" style="color:#be123c;word-break:break-all"></b>（精确填写，勿用通配符）。</div>
+  <div id="whitelistTip" class="field" style="margin-top:4px;font-size:12px;color:#b45309"></div>
+  <button id="saveKey" class="btn-primary" data-page-node-id="AYy0MIqLxbabgs2JHDamMO">保存</button>
+  <button id="clearKey" class="btn-ghost" style="background:#fff1f2;color:#be123c;border:1px solid #fecdd3">清除 Key（回到离线雷达）</button>
+</div></div>
+<!-- 行程 -->
+<div class="modal-mask" id="tripMask" data-page-node-id="fL5aGBBEuCFFgV94TtsQbE"><div class="modal" data-page-node-id="AMwObWom9uUpvuLV4Tw34I">
+  <div class="close" data-page-node-id="GmWVsir9QHfwAsEsmHOxjj"><span id="tripClose" data-page-node-id="1oxgdPNsIJbGNwOf8mymjU">✕</span></div>
+  <h2 data-page-node-id="QzfOPeFIJVB2xFJvjtESDe">🧭 行程模式</h2>
+  <div class="field" data-page-node-id="tGIpOtRheP4JcwnzHVq0Lx">把旅行路线导入进来，急厕雷达会在每站附近标出厕所，并给出逐站「如厕提醒」。示例行程已绑好景区厕所数据。</div>
+  <div class="field" style="font-weight:700;margin-top:8px" data-page-node-id="N6O4wvC7HDU9DnkD8Hd4DR">① 载入示例行程</div>
+  <select id="exTripSel" data-page-node-id="5nZL0aCKbBeZXHBvizOstj"></select>
+  <button id="loadExBtn" class="btn-primary" style="margin-top:8px" data-page-node-id="vzE1JKH6EcXkJZE85fVo3G">载入并在地图标注</button>
+  <div class="field" style="font-weight:700;margin-top:14px" data-page-node-id="PVAlDbmfuzP83U7W0s0hNz">② 或手动添加行程点</div>
+  <input id="stopName" placeholder="地点名，如 太和殿" style="margin-top:6px" data-page-node-id="rScWfYT5waFHq1nxiLXDAK">
+  <div style="display:flex;gap:8px;margin-top:8px" data-page-node-id="w8Qo86yYiIDOh5HJgkgPLw">
+    <select id="stopSpot" style="flex:1" data-page-node-id="5aLG2ycElZdxVQgltqciJk"></select>
+    <input id="stopTime" placeholder="时间" style="width:92px" data-page-node-id="3Fr98S4ZEuwFU8tup43bO7">
+  </div>
+  <button id="addStopBtn" class="btn-primary" style="margin-top:8px;background:#fff;border:1.5px solid var(--blue);color:var(--blue);box-shadow:none" data-page-node-id="jvl4CZQMUhwGN1kY4QLZND">+ 添加这一站</button>
+  <div class="field" style="font-weight:700;margin-top:14px" data-page-node-id="WxtiVrUG78xAD0GdkbLssk">当前行程（<span id="stopCount" data-page-node-id="FpBLGF711MRnb03wpkMyQk">0</span> 站）</div>
+  <div id="stopList" data-page-node-id="YUagoMitBNNQaGvDCJmTHP"></div>
+  <button id="applyTripBtn" class="btn-danger" data-page-node-id="kE5zkRSuM4kUHwthvuN0km">在地图标注 + 生成提醒</button>
+  <button id="exitTripBtn" class="btn-ghost" style="display:none" data-page-node-id="pX0b6iKAcmOai2Y2w9u5vS">退出行程模式</button>
+</div></div>
+
+<script>
+/* ---------- 示例数据（说明：以下坐标为示意，用于演示交互；配置腾讯地图 Key 后可拉取真实公厕 POI） ---------- */
+const SPOTS = [
+  {id:'gugong', name:'故宫 (北京)', center:[39.9163,116.3972], restrooms:[
+    {id:'gg1', name:'午门公厕', pos:[39.9150,116.3975], type:'景区卫生间', paper:'有', fee:'免费', sit:'有', baby:'有', accessible:'有', third:'有', clean:4, queue:'轻', note:'游客服务中心旁，母婴室宽敞'},
+    {id:'gg2', name:'神武门公厕', pos:[39.9220,116.3905], type:'公厕', paper:'无', fee:'免费', sit:'无', baby:'无', accessible:'有', third:'无', clean:3, queue:'中'},
+    {id:'gg3', name:'珍宝馆旁卫生间', pos:[39.9180,116.4010], type:'景区卫生间', paper:'有', fee:'收费', sit:'有', baby:'有', accessible:'无', third:'无', clean:4, queue:'轻'},
+    {id:'gg4', name:'御花园公厕', pos:[39.9175,116.3940], type:'景区卫生间', paper:'未知', fee:'免费', sit:'无', baby:'无', accessible:'无', third:'无', clean:2, queue:'重', note:'旺季排队较长'},
+    {id:'gg5', name:'东华门公厕', pos:[39.9160,116.4030], type:'公厕', paper:'有', fee:'免费', sit:'有', baby:'无', accessible:'有', third:'无', clean:3, queue:'中'},
+  ]},
+  {id:'xihu', name:'西湖 (杭州)', center:[30.2592,120.1490], restrooms:[
+    {id:'xh1', name:'断桥公厕', pos:[30.2605,120.1485], type:'景区卫生间', paper:'有', fee:'免费', sit:'有', baby:'有', accessible:'有', third:'有', clean:5, queue:'轻'},
+    {id:'xh2', name:'苏堤卫生间', pos:[30.2550,120.1430], type:'公厕', paper:'无', fee:'免费', sit:'无', baby:'无', accessible:'有', third:'无', clean:3, queue:'中'},
+    {id:'xh3', name:'雷峰塔卫生间', pos:[30.2310,120.1490], type:'景区卫生间', paper:'有', fee:'收费', sit:'有', baby:'有', accessible:'有', third:'有', clean:4, queue:'中'},
+    {id:'xh4', name:'湖滨步行街卫生间', pos:[30.2580,120.1560], type:'商场卫生间', paper:'有', fee:'消费免', sit:'有', baby:'有', accessible:'有', third:'有', clean:4, queue:'轻'},
+    {id:'xh5', name:'曲院风荷公厕', pos:[30.2660,120.1400], type:'景区卫生间', paper:'未知', fee:'免费', sit:'无', baby:'无', accessible:'无', third:'无', clean:3, queue:'轻'},
+  ]},
+  {id:'xian', name:'西安城墙 (西安)', center:[34.2514,108.9470], restrooms:[
+    {id:'xa1', name:'南门公厕', pos:[34.2500,108.9475], type:'景区卫生间', paper:'有', fee:'免费', sit:'有', baby:'有', accessible:'有', third:'有', clean:4, queue:'轻'},
+    {id:'xa2', name:'碑林博物馆卫生间', pos:[34.2537,108.9529], type:'景区卫生间', paper:'有', fee:'收费', sit:'有', baby:'无', accessible:'有', third:'无', clean:4, queue:'中'},
+    {id:'xa3', name:'钟楼公厕', pos:[34.2610,108.9450], type:'公厕', paper:'无', fee:'免费', sit:'无', baby:'无', accessible:'有', third:'无', clean:2, queue:'重'},
+    {id:'xa4', name:'回民街卫生间', pos:[34.2620,108.9490], type:'商场卫生间', paper:'有', fee:'消费免', sit:'有', baby:'无', accessible:'无', third:'无', clean:3, queue:'重', note:'回民街内公厕少，建议提前'},
+    {id:'xa5', name:'永宁门瓮城公厕', pos:[34.2490,108.9460], type:'景区卫生间', paper:'有', fee:'免费', sit:'无', baby:'有', accessible:'有', third:'无', clean:3, queue:'轻'},
+  ]},
+  {id:'waitan', name:'外滩 (上海)', center:[31.2397,121.4900], restrooms:[
+    {id:'wt1', name:'外滩观光隧道公厕', pos:[31.2400,121.4910], type:'景区卫生间', paper:'有', fee:'收费', sit:'有', baby:'有', accessible:'有', third:'有', clean:4, queue:'中'},
+    {id:'wt2', name:'南京东路卫生间', pos:[31.2360,121.4830], type:'公厕', paper:'无', fee:'免费', sit:'无', baby:'无', accessible:'有', third:'无', clean:2, queue:'重'},
+    {id:'wt3', name:'人民广场公厕', pos:[31.2300,121.4730], type:'公厕', paper:'有', fee:'免费', sit:'有', baby:'无', accessible:'有', third:'无', clean:3, queue:'中'},
+    {id:'wt4', name:'外白渡桥卫生间', pos:[31.2450,121.4900], type:'景区卫生间', paper:'未知', fee:'免费', sit:'无', baby:'无', accessible:'无', third:'无', clean:3, queue:'轻'},
+    {id:'wt5', name:'豫园卫生间', pos:[31.2270,121.4900], type:'商场卫生间', paper:'有', fee:'消费免', sit:'有', baby:'有', accessible:'有', third:'无', clean:4, queue:'中'},
+  ]},
+  {id:'kuanyhai', name:'宽窄巷子 (成都)', center:[30.6700,104.0560], restrooms:[
+    {id:'ky1', name:'宽巷子公厕', pos:[30.6705,104.0550], type:'景区卫生间', paper:'有', fee:'免费', sit:'有', baby:'有', accessible:'有', third:'有', clean:4, queue:'中'},
+    {id:'ky2', name:'窄巷子卫生间', pos:[30.6695,104.0570], type:'景区卫生间', paper:'有', fee:'收费', sit:'有', baby:'无', accessible:'有', third:'无', clean:4, queue:'轻'},
+    {id:'ky3', name:'井巷子公厕', pos:[30.6685,104.0565], type:'公厕', paper:'无', fee:'免费', sit:'无', baby:'无', accessible:'无', third:'无', clean:2, queue:'重'},
+    {id:'ky4', name:'人民公园卫生间', pos:[30.6650,104.0580], type:'公厕', paper:'有', fee:'免费', sit:'有', baby:'无', accessible:'有', third:'无', clean:3, queue:'中'},
+    {id:'ky5', name:'春熙路卫生间', pos:[30.6570,104.0810], type:'商场卫生间', paper:'有', fee:'消费免', sit:'有', baby:'有', accessible:'有', third:'有', clean:5, queue:'轻'},
+  ]},
+];
+
+/* 示例行程：stop.pos 为示意坐标，spotId 用于关联该景区厕所数据 */
+const EXAMPLE_TRIPS = [
+  {id:'tg', name:'故宫半日游（4站）', stops:[
+    {name:'午门', spotId:'gugong', time:'09:00', pos:[39.9150,116.3975]},
+    {name:'太和殿', spotId:'gugong', time:'10:00', pos:[39.9165,116.3908]},
+    {name:'御花园', spotId:'gugong', time:'11:00', pos:[39.9175,116.3940]},
+    {name:'神武门', spotId:'gugong', time:'11:40', pos:[39.9220,116.3905]},
+  ]},
+  {id:'tx', name:'西湖一日游（4站）', stops:[
+    {name:'断桥', spotId:'xihu', time:'09:30', pos:[30.2605,120.1485]},
+    {name:'苏堤', spotId:'xihu', time:'10:30', pos:[30.2550,120.1430]},
+    {name:'雷峰塔', spotId:'xihu', time:'13:30', pos:[30.2310,120.1490]},
+    {name:'湖滨步行街', spotId:'xihu', time:'16:00', pos:[30.2580,120.1560]},
+  ]},
+  {id:'tc', name:'西安城墙+回民街（4站）', stops:[
+    {name:'南门', spotId:'xian', time:'09:00', pos:[34.2500,108.9475]},
+    {name:'碑林', spotId:'xian', time:'10:00', pos:[34.2537,108.9529]},
+    {name:'钟楼', spotId:'xian', time:'11:00', pos:[34.2610,108.9450]},
+    {name:'回民街', spotId:'xian', time:'12:00', pos:[34.2620,108.9490]},
+  ]},
+];
+
+/* ---------- 状态 ---------- */
+const LS_REPORTS='jicshi_reports', LS_KEY='jicshi_mapkey', LS_LIVE='jicshi_live';
+const STATE={ spot:SPOTS[0].id, spotChosen:false, user:null, emergency:false, radius:1000,
+  filters:{baby:false,old:false,female:false}, reports:{}, mapKey:'', live:false, map:null, liveItems:[], liveCenter:null,
+  trip:{active:false, stops:[]} };
+
+function loadLS(){ try{ STATE.reports=JSON.parse(localStorage.getItem(LS_REPORTS))||{}; }catch(e){ STATE.reports={}; }
+  STATE.mapKey=localStorage.getItem(LS_KEY)||''; STATE.live=localStorage.getItem(LS_LIVE)==='1'; }
+function saveReports(){ localStorage.setItem(LS_REPORTS, JSON.stringify(STATE.reports)); }
+
+/* ---------- 工具 ---------- */
+function getSpot(){ return SPOTS.find(s=>s.id===STATE.spot); }
+function allRestroomsFlat(){ const a=[]; SPOTS.forEach(s=>s.restrooms.forEach(r=>a.push(r))); return a; }
+function userPos(){ if(STATE.user) return STATE.user;
+  if(STATE.trip.active && STATE.trip.stops.length) return centroid(STATE.trip.stops.map(s=>s.pos));
+  const sp=getSpot(); return sp?sp.center:SPOTS[0].center; }
+function centroid(pts){ const la=pts.reduce((s,p)=>s+p[0],0)/pts.length, lo=pts.reduce((s,p)=>s+p[1],0)/pts.length; return [la,lo]; }
+function haversine(a,b){ const R=6371000,toR=x=>x*Math.PI/180;
+  const dLat=toR(b[0]-a[0]),dLng=toR(b[1]-a[1]);
+  const s=Math.sin(dLat/2)**2+Math.cos(toR(a[0]))*Math.cos(toR(b[0]))*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(s),Math.sqrt(1-s)); }
+function walkMin(m){ return Math.max(1, Math.round(m/75)); }
+/* WGS-84（浏览器定位）转 GCJ-02（腾讯地图坐标），消除几百米偏移 */
+const GCJ_A=6378245.0, GCJ_EE=0.00669342162296594323;
+function _tLat(x,y){ let r=-100+2*x+3*y+0.2*y*y+0.1*x*y+0.2*Math.sqrt(Math.abs(x));
+  r+=(20*Math.sin(6*x*Math.PI)+20*Math.sin(2*x*Math.PI))*2/3; r+=(20*Math.sin(y*Math.PI)+40*Math.sin(y/3*Math.PI))*2/3;
+  r+=(160*Math.sin(y/12*Math.PI)+320*Math.sin(y*Math.PI/30))*2/3; return r; }
+function _tLng(x,y){ let r=300+x+2*y+0.1*x*x+0.1*x*y+0.1*Math.sqrt(Math.abs(x));
+  r+=(20*Math.sin(6*x*Math.PI)+20*Math.sin(2*x*Math.PI))*2/3; r+=(20*Math.sin(x*Math.PI)+40*Math.sin(x/3*Math.PI))*2/3;
+  r+=(150*Math.sin(x/12*Math.PI)+300*Math.sin(x/30*Math.PI))*2/3; return r; }
+function outOfChina(lng,lat){ return !(lng>73.66 && lng<135.05 && lat>3.86 && lat<53.55); }
+function wgs84togcj02(lat,lng){
+  if(outOfChina(lng,lat)) return [lat,lng];
+  const dLat=_tLat(lng-105,lat-35), dLng=_tLng(lng-105,lat-35);
+  const radLat=lat/180*Math.PI; const magic=1-GCJ_EE*Math.sin(radLat)*Math.sin(radLat); const sq=Math.sqrt(magic);
+  const dl=(dLat*180)/((GCJ_A*(1-GCJ_EE))/(magic*sq)*Math.PI);
+  const dn=(dLng*180)/((GCJ_A/sq)*Math.cos(radLat)*Math.PI);
+  return [lat+dl, lng+dn]; }
+/* 增强厕所判定：过滤掉非厕所 POI，提升准确度 */
+const TOILET_KW=['公厕','卫生间','厕所','洗手间','盥洗','wc','toilet','茅房','移动厕所','第三卫生间','公共厕所','如厕'];
+function isToilet(d){ const t=((d.title||'')+' '+(d.category||'')).toLowerCase();
+  return TOILET_KW.some(k=>t.indexOf(k.toLowerCase())>=0); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function merged(r){ const rep=STATE.reports[r.id]||{};
+  return { paper:rep.paper??r.paper, fee:rep.fee??r.fee, sit:rep.sit??r.sit,
+    baby:rep.baby??r.baby, accessible:rep.accessible??r.accessible, third:rep.third??r.third,
+    clean:rep.clean??r.clean, queue:rep.queue??r.queue, count:rep.count||0, updated:rep.updated||null }; }
+function passesFilter(r){ const m=merged(r);
+  if(STATE.filters.baby && m.baby!=='有') return false;
+  if(STATE.filters.old && !(m.accessible==='有'||m.sit==='有')) return false;
+  if(STATE.filters.female && m.queue==='重') return false;
+  return true; }
+function tripSpotIds(){ const ids=[]; STATE.trip.stops.forEach(s=>{ if(s.spotId && !ids.includes(s.spotId)) ids.push(s.spotId); }); return ids; }
+function allItems(){
+  // 行程模式：用预设景区厕所（离线），忽略实时数据，避免混合
+  if(STATE.trip.active){ const ids=tripSpotIds(); const spots=ids.length?SPOTS.filter(s=>ids.includes(s.id)):SPOTS; return spots.flatMap(s=>s.restrooms).map(r=>({r,live:false})); }
+  // 实时且已搜到真实公厕：只显示真实数据
+  if(STATE.live && STATE.liveItems.length) return STATE.liveItems.map(r=>({r,live:true}));
+  // 离线/未搜到：仅当用户手动选择景区后才展示示例厕所（默认不展示，避免污染真实数据）
+  if(STATE.spotChosen) return getSpot().restrooms.map(r=>({r,live:false}));
+  return [];
+}
+function compute(){ const up=userPos();
+  let arr=allItems().map(({r,live})=>{ const d=haversine(up,r.pos); return {r,live,d,min:walkMin(d),m:merged(r)}; });
+  arr=arr.filter(x=>passesFilter(x.r) && x.d<=STATE.radius); arr.sort((a,b)=>a.d-b.d); return arr; }
+
+/* ---------- 渲染：列表 ---------- */
+function tagHtml(m){
+  const t=[];
+  t.push(m.paper==='有'?'<span class="tg ok">有纸</span>':m.paper==='无'?'<span class="tg bad">无纸</span>':'<span class="tg no">纸未知</span>');
+  t.push(m.fee==='免费'?'<span class="tg ok">免费</span>':m.fee==='消费免'?'<span class="tg ok">消费免</span>':'<span class="tg warn">收费</span>');
+  t.push(m.sit==='有'?'<span class="tg ok">坐便</span>':'<span class="tg no">蹲位</span>');
+  if(m.baby==='有') t.push('<span class="tg ok">母婴室</span>');
+  if(m.accessible==='有') t.push('<span class="tg ok">无障碍</span>');
+  if(m.third==='有') t.push('<span class="tg ok">第三卫生间</span>');
+  t.push(m.queue==='重'?'<span class="tg bad">排队重</span>':m.queue==='中'?'<span class="tg warn">排队中</span>':'<span class="tg ok">排队轻</span>');
+  t.push('<span class="tg no">干净 '+m.clean+'/5</span>');
+  return t.join('');
+}
+function tagSummary(m){ const a=[];
+  a.push(m.paper==='有'?'有纸':m.paper==='无'?'无纸':'纸未知');
+  a.push(m.fee==='免费'?'免费':m.fee==='消费免'?'消费免':'收费');
+  if(m.baby==='有')a.push('母婴'); if(m.accessible==='有')a.push('无障碍'); if(m.third==='有')a.push('第三卫');
+  a.push(m.queue==='重'?'排队重':m.queue==='中'?'排队中':'排队轻');
+  return a.join('·'); }
+function renderList(arr){
+  const el=document.getElementById('list');
+  if(!arr.length){ el.innerHTML='<div class="empty"><span class="big-ico">🚻</span>当前筛选条件下没有匹配的厕所。<br>试试关闭筛选，或切换其他景区/行程。</div>'; return; }
+  el.innerHTML=arr.map((x,i)=>`
+    <div class="card ${i===0&&STATE.emergency?'nearest':''}" data-id="${x.r.id}" style="animation-delay:${Math.min(i*35,300)}ms">
+      <div class="top">
+        <div class="name">${i===0&&STATE.emergency?'🚨 ':''}${x.r.name}</div>
+        <div class="dist"><b>${x.min} 分钟</b>步行约 ${Math.round(x.d)} 米</div>
+      </div>
+      <div class="type">${x.r.type}${x.live?' · 实时':''}</div>
+      <div class="tags">${tagHtml(x.m)}</div>
+    </div>`).join('');
+  el.querySelectorAll('.card').forEach(c=>c.onclick=()=>openDetail(c.dataset.id));
+}
+
+/* ---------- 雷达视图状态与交互（缩放 / 平移 / 扫射） ---------- */
+let VIEW={ z:1, ox:0, oy:0, base:1, cx:0, cy:0, cy0:0, cx0:0, sig:'' };
+let DRAG=null, SUPPRESS=0, markerLayer=null, routeLayer=null;
+
+function fitBase(points,W,H){
+  const lats=points.map(p=>p[0]), lngs=points.map(p=>p[1]);
+  const minLat=Math.min(...lats),maxLat=Math.max(...lats),minLng=Math.min(...lngs),maxLng=Math.max(...lngs);
+  const cy0=(minLat+maxLat)/2, cx0=(minLng+maxLng)/2;
+  const dLat=Math.max(maxLat-minLat,0.0006), dLng=Math.max(maxLng-minLng,0.0006);
+  const mLat=dLat*111320, mLng=dLng*111320*Math.cos(cy0*Math.PI/180);
+  const pad=44;
+  const s=Math.min((W/2-pad)/mLng,(H/2-pad)/mLat);
+  return {cy0,cx0,s};
+}
+function radarProj(p){
+  const dx=(p[1]-VIEW.cx0)*Math.cos(VIEW.cy0*Math.PI/180)*111320;
+  const dy=(p[0]-VIEW.cy0)*111320;
+  return [VIEW.cx + dx*VIEW.base, VIEW.cy - dy*VIEW.base];
+}
+function applyViewport(animate){
+  const g=document.getElementById('viewport'); if(!g) return;
+  g.style.transition = animate ? 'transform .25s ease' : 'none';
+  g.style.transform = `translate(${VIEW.ox}px,${VIEW.oy}px) translate(${VIEW.cx}px,${VIEW.cy}px) scale(${VIEW.z}) translate(${-VIEW.cx}px,${-VIEW.cy}px)`;
+}
+function zoomBy(f){
+  const z2=Math.max(0.4,Math.min(12,VIEW.z*f));
+  VIEW.ox*=z2/VIEW.z; VIEW.oy*=z2/VIEW.z; VIEW.z=z2; applyViewport(true);
+}
+function onWheel(e){
+  const svg=document.getElementById('radarSvg'); if(!svg) return;
+  e.preventDefault();
+  const r=svg.getBoundingClientRect(); const cx=e.clientX-r.left, cy=e.clientY-r.top;
+  const factor=e.deltaY<0?1.18:1/1.18; const z2=Math.max(0.4,Math.min(12,VIEW.z*factor));
+  const ux=cx-VIEW.cx, uy=cy-VIEW.cy;
+  VIEW.ox = ux - z2*(ux-VIEW.ox)/VIEW.z;
+  VIEW.oy = uy - z2*(uy-VIEW.oy)/VIEW.z;
+  VIEW.z = z2; applyViewport(false);
+}
+function onDown(e){ DRAG={x:e.clientX,y:e.clientY,ox:VIEW.ox,oy:VIEW.oy,moved:false}; }
+function onMove(e){ if(!DRAG) return; const dx=e.clientX-DRAG.x, dy=e.clientY-DRAG.y;
+  if(Math.abs(dx)+Math.abs(dy)>3) DRAG.moved=true;
+  VIEW.ox=DRAG.ox+dx; VIEW.oy=DRAG.oy+dy; applyViewport(false); }
+function onUp(){ if(DRAG&&DRAG.moved) SUPPRESS=Date.now()+300; DRAG=null; }
+
+/* 标签防重叠：贪心避让 */
+function placeLabels(items){
+  const placed=[], out=[];
+  const sorted=items.slice().sort((a,b)=>a.py-b.py);
+  const offsets=[-13,14,-27,27,-41,41,0];
+  for(const it of sorted){ let chosen=it.py-13, done=false;
+    for(const off of offsets){ const ty=it.py+off; const box={x:it.px-36,y:ty-7,w:72,h:13};
+      if(!placed.some(q=> q.x<box.x+box.w && q.x+box.w>box.x && q.y<box.y+box.h && q.y+box.h>box.y)){ chosen=ty; placed.push(box); done=true; break; } }
+    if(!done) chosen=it.py-13;
+    out.push({x:it.px,y:chosen,text:it.text}); }
+  return out;
+}
+
+function renderRadar(arr){
+  const area=document.getElementById('mapArea');
+  const W=area.clientWidth||560, H=area.clientHeight||400;
+  const stops=STATE.trip.active?STATE.trip.stops:[];
+  if(!arr.length && !stops.length){ const msg=(!STATE.live||!STATE.mapKey)?'👉 请从上方「景区」下拉选择查看示例厕所，或在 ⚙️ 中配置 Key 获取你附近的真实厕所':'当前筛选无结果';
+    area.innerHTML='<div class="hint" id="mapHint">'+msg+'</div>'; return; }
+  const allPts=arr.map(x=>x.r.pos).concat(stops.map(s=>s.pos)).concat([userPos()]);
+  const f=fitBase(allPts,W,H);
+  const sig=STATE.spot+'|'+(STATE.trip.active?STATE.trip.stops.map(s=>s.name+(s.spotId||'')).join(','):'');
+  const fresh=(sig!==VIEW.sig);
+  if(fresh){ VIEW.sig=sig; VIEW.z=1; VIEW.ox=0; VIEW.oy=0; }
+  VIEW.cx=W/2; VIEW.cy=H/2; VIEW.base=f.s; VIEW.cy0=f.cy0; VIEW.cx0=f.cx0;
+  const R=Math.min(VIEW.cx,VIEW.cy)*0.92;
+  // 距离环
+  let rings='';
+  [0.34,0.67,1].forEach(fr=>{ const r=R*fr; const meters=Math.round(r/(VIEW.base*VIEW.z));
+    rings+=`<circle cx="${VIEW.cx}" cy="${VIEW.cy}" r="${r}" fill="none" stroke="rgba(148,178,220,0.18)" stroke-width="1" ${fr<1?'stroke-dasharray="2 6"':''}/>`;
+    rings+=`<text x="${VIEW.cx+4}" y="${VIEW.cy-r+11}" font-size="9" fill="rgba(148,163,184,0.65)">${meters}m</text>`; });
+  // 雷达扫射
+  const sweep=`<g opacity="0.6">
+      <path d="M${VIEW.cx},${VIEW.cy} L${VIEW.cx+R},${VIEW.cy} A${R} ${R} 0 0 0 ${(VIEW.cx+R*Math.cos(-0.45)).toFixed(1)},${(VIEW.cy+R*Math.sin(-0.45)).toFixed(1)} Z" fill="url(#sweepGrad)"/>
+      <line x1="${VIEW.cx}" y1="${VIEW.cy}" x2="${VIEW.cx+R}" y2="${VIEW.cy}" stroke="#fb7185" stroke-width="1.5" opacity="0.65"/>
+      <animateTransform attributeName="transform" type="rotate" from="0 ${VIEW.cx} ${VIEW.cy}" to="360 ${VIEW.cx} ${VIEW.cy}" dur="4.5s" repeatCount="indefinite"/></g>`;
+  // 路线
+  let route=''; if(stops.length>1){ const sp=stops.map(s=>radarProj(s.pos)); route=`<polyline points="${sp.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="6 5" opacity="0.8"/>`; }
+  // 厕所点
+  let pts='';
+  arr.forEach((x,i)=>{ const p=radarProj(x.r.pos), nearest=i===0&&STATE.emergency;
+    const col=nearest?'#fb7185':(x.live?'#38bdf8':'#34d399');
+    if(nearest){ pts+=`<circle cx="${p[0]}" cy="${p[1]}" r="9" fill="none" stroke="#fb7185" stroke-width="2">
+        <animate attributeName="r" values="9;26" dur="1.6s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.75;0" dur="1.6s" repeatCount="indefinite"/></circle>`; }
+    pts+=`<g class="mk"><circle cx="${p[0]}" cy="${p[1]}" r="${nearest?9:7}" fill="${col}" stroke="rgba(255,255,255,0.92)" stroke-width="2" filter="url(#glow)" data-id="${x.r.id}"/>${nearest?`<text x="${p[0]}" y="${p[1]+3.5}" font-size="10" fill="#fff" text-anchor="middle" font-weight="800" pointer-events="none">急</text>`:''}</g>`; });
+  // 行程站
+  let stopHtml=''; stops.forEach((s,i)=>{ const p=radarProj(s.pos);
+    stopHtml+=`<g class="mk"><circle cx="${p[0]}" cy="${p[1]}" r="11" fill="#38bdf8" stroke="rgba(255,255,255,0.92)" stroke-width="2" filter="url(#glow)"/>
+      <text x="${p[0]}" y="${p[1]+4}" font-size="11" fill="#0b1526" text-anchor="middle" font-weight="800" pointer-events="none">${i+1}</text></g>`; });
+  // 你
+  const up=radarProj(userPos());
+  const you=`<g><circle cx="${up[0]}" cy="${up[1]}" r="6.5" fill="#f1f5f9" stroke="#0b1526" stroke-width="2" filter="url(#glow)"/>
+      <circle cx="${up[0]}" cy="${up[1]}" r="6.5" fill="none" stroke="#94a3b8" stroke-width="1.5">
+        <animate attributeName="r" values="6.5;15" dur="1.8s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.6;0" dur="1.8s" repeatCount="indefinite"/></circle>
+      <text x="${up[0]}" y="${up[1]+20}" font-size="10" fill="#e2e8f0" text-anchor="middle" font-weight="700" pointer-events="none">你</text></g>`;
+  // 标签防重叠
+  const labelItems=arr.map(x=>{ const p=radarProj(x.r.pos); return {px:p[0],py:p[1],text:x.r.name}; })
+    .concat(stops.map((s,i)=>{ const p=radarProj(s.pos); return {px:p[0],py:p[1],text:(i+1)+'.'+s.name}; }));
+  const labels=placeLabels(labelItems);
+  const labelSvg=labels.map(l=>`<text class="radar-label" x="${l.x}" y="${l.y}" text-anchor="middle" pointer-events="none">${l.text}</text>`).join('');
+
+  const hintTxt=STATE.trip.active?'🧭 行程模式（离线雷达）· 滚轮缩放 / 拖拽平移，蓝点=行程站，绿·红=厕所':'📡 离线雷达（未配置地图 Key）· 滚轮缩放 / 拖拽平移，红点=最近可去';
+  const legend=`<div class="legend"><div><i style="background:#34d399"></i>厕所</div><div><i style="background:#38bdf8"></i>行程点/你</div>${STATE.emergency?'<div><i style="background:#fb7185"></i>最近</div>':''}</div>`;
+  const zc=`<div class="zoom-ctrl"><button id="zIn" title="放大">＋</button><button id="zOut" title="缩小">－</button><button id="zFit" title="适应屏幕">⤢</button></div>`;
+  const defs=`<defs>
+      <radialGradient id="sweepGrad"><stop offset="0%" stop-color="#f43f5e" stop-opacity="0.32"/><stop offset="100%" stop-color="#f43f5e" stop-opacity="0"/></radialGradient>
+      <filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feDropShadow dx="0" dy="1" stdDeviation="2.2" flood-color="#000" flood-opacity="0.5"/></filter>
+    </defs>`;
+  area.innerHTML=`<div class="hint" id="mapHint">${hintTxt}</div>${legend}${zc}
+    <svg id="radarSvg" viewBox="0 0 ${W} ${H}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      ${defs}
+      <g id="viewport">
+        <g id="ringsG">${rings}</g>
+        ${sweep}
+        <g id="routeG">${route}</g>
+        <g id="ptsG" class="${fresh?'pop-in':''}">${pts}</g>
+        <g id="stopsG">${stopHtml}</g>
+        <g id="youG">${you}</g>
+        <g id="labelsG">${labelSvg}</g>
+      </g>
+    </svg>`;
+  const svg=document.getElementById('radarSvg');
+  svg.addEventListener('wheel', onWheel, {passive:false});
+  svg.addEventListener('pointerdown', onDown);
+  area.querySelectorAll('[data-id]').forEach(c=>c.addEventListener('click',()=>{ if(Date.now()<SUPPRESS) return; openDetail(c.dataset.id); }));
+  document.getElementById('zIn').onclick=()=>zoomBy(1.3);
+  document.getElementById('zOut').onclick=()=>zoomBy(1/1.3);
+  document.getElementById('zFit').onclick=()=>{ VIEW.z=1; VIEW.ox=0; VIEW.oy=0; applyViewport(true); };
+  applyViewport(false);
+}
+
+/* ---------- 渲染：实时地图（有 Key） ---------- */
+function ensureMapLib(cb){ if(window.TMap){cb();return;}
+  const s=document.createElement('script'); s.src=`https://map.qq.com/api/gljs?v=1.exp&key=${STATE.mapKey}`;
+  s.onload=cb; s.onerror=()=>{ STATE.live=false; localStorage.setItem(LS_LIVE,'0'); render(); };
+  document.head.appendChild(s); }
+/* 实时地图标记：用 TMap.MultiMarker + MarkerStyle(SVG data-URI)，官方最稳方式，自动随地图投影/缩放/平移 */
+function svgMarker(color, glyph){
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="44" height="56" viewBox="0 0 44 56">'
+    +'<path d="M22 2 C10 2 2 11 2 23 C2 38 22 54 22 54 C22 54 42 38 42 23 C42 11 34 2 22 2 Z" fill="'+color+'" stroke="#fff" stroke-width="3"/>'
+    +'<circle cx="22" cy="23" r="13" fill="#fff"/>'
+    +'<text x="22" y="29" font-size="14" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="bold" fill="'+color+'">'+glyph+'</text>'
+    +'</svg>';
+  return 'data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(svg)));
+}
+function userSvg(){
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">'
+    +'<circle cx="18" cy="18" r="15" fill="rgba(37,99,235,0.28)"/>'
+    +'<circle cx="18" cy="18" r="9" fill="#2563eb" stroke="#fff" stroke-width="3"/>'
+    +'</svg>';
+  return 'data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(svg)));
+}
+function clearMarkers(){
+  try{ if(markerLayer){ markerLayer.setMap(null); markerLayer=null; } }catch(e){ markerLayer=null; }
+  try{ if(routeLayer){ routeLayer.setMap(null); routeLayer=null; } }catch(e){ routeLayer=null; }
+}
+function drawLive(items){
+  if(!STATE.map) return;
+  clearMarkers();
+  const up=userPos();
+  const styles={
+    toilet:new TMap.MarkerStyle({width:30,height:38,anchor:{x:15,y:38},src:svgMarker('#10b981','WC')}),
+    emergency:new TMap.MarkerStyle({width:34,height:42,anchor:{x:17,y:42},src:svgMarker('#f43f5e','!')}),
+    user:new TMap.MarkerStyle({width:26,height:26,anchor:{x:13,y:13},src:userSvg()})
+  };
+  const geoms=[];
+  items.forEach((x,i)=>{ const nearest=i===0&&STATE.emergency;
+    geoms.push({id:x.r.id, styleId:nearest?'emergency':'toilet', position:new TMap.LatLng(x.r.pos[0],x.r.pos[1]), properties:{id:x.r.id}}); });
+  if(STATE.trip.active) STATE.trip.stops.forEach((s,i)=>{ const sid='stop'+i;
+    styles[sid]=new TMap.MarkerStyle({width:30,height:38,anchor:{x:15,y:38},src:svgMarker('#3b82f6',String(i+1))});
+    geoms.push({id:sid, styleId:sid, position:new TMap.LatLng(s.pos[0],s.pos[1]), properties:{id:sid}}); });
+  geoms.push({id:'__user', styleId:'user', position:new TMap.LatLng(up[0],up[1]), properties:{id:'__user'}});
+  markerLayer=new TMap.MultiMarker({map:STATE.map, styles, geometries:geoms});
+  markerLayer.on('click', e=>{ const id=e.geometry&&e.geometry.properties&&e.geometry.properties.id;
+    if(id && id!=='__user' && id.indexOf('stop')!==0) openDetail(id); });
+}
+/* 解码腾讯 WebService 路线压缩点串（前向差分，除以 1e6） */
+function decodeQQPolyline(coors){
+  const kr=1000000, out=[];
+  for(let i=2;i<coors.length;i++) coors[i]=Number(coors[i-2])+Number(coors[i])/kr;
+  for(let i=0;i<coors.length;i+=2) out.push([coors[i],coors[i+1]]);
+  return out;
+}
+/* 在当前地图内绘制步行路线（替代跳转新窗口） */
+function drawRoute(path){
+  if(!path||!path.length||!STATE.map) return;
+  if(!routeLayer){
+    routeLayer=new TMap.MultiPolyline({map:STATE.map,
+      styles:{walk:new TMap.PolylineStyle({color:'#0ea5e9',width:7,borderColor:'#ffffff',borderWidth:3,lineCap:'round'})},
+      geometries:[{id:'walkRoute',styleId:'walk',paths:path}]});
+  } else {
+    routeLayer.setGeometries([{id:'walkRoute',styleId:'walk',paths:path}]);
+  }
+  try{ if(TMap.LatLngBounds && path.length){
+    const lats=path.map(p=>p.lat), lngs=path.map(p=>p.lng);
+    STATE.map.fitBounds(new TMap.LatLngBounds(
+      new TMap.LatLng(Math.min.apply(null,lats),Math.min.apply(null,lngs)),
+      new TMap.LatLng(Math.max.apply(null,lats),Math.max.apply(null,lngs))));
+  } }catch(e){ try{ const c=path[Math.floor(path.length/2)]; STATE.map.setCenter(c); }catch(_){} }
+}
+function ensureLiveMap(){
+  const area=document.getElementById('mapArea');
+  if(STATE.map && area.querySelector('#tencentMap')){ refreshLiveData(); return; }
+  STATE.liveErr=null;
+  area.innerHTML='<div class="hint" id="mapHint">🗺️ 实时地图加载中…</div>'
+    +'<div id="tencentMap" style="position:absolute;inset:0;border-radius:20px;overflow:hidden"></div>'
+    +'<div class="live-zoom"><button id="lzIn" title="放大">＋</button><button id="lzOut" title="缩小">－</button><button id="lzFit" title="显示全部">⤢</button></div>';
+  ensureMapLib(()=>{ try{
+    const sp=(STATE.trip.active?STATE.trip.stops:[]).map(s=>s.pos);
+    const center=sp.length?centroid(sp):userPos();
+    STATE.map=new TMap.Map(document.getElementById('tencentMap'),{center:new TMap.LatLng(center[0],center[1]),zoom:STATE.trip.active?12:15});
+    // 移除腾讯自带缩放/旋转/比例尺控件，避免浮在最上层遮挡界面
+    try{ const C=TMap.constants&&TMap.constants.DEFAULT_CONTROL_ID;
+      if(C){ if(C.ZOOM) STATE.map.removeControl(C.ZOOM); if(C.ROTATION) STATE.map.removeControl(C.ROTATION); if(C.SCALE) STATE.map.removeControl(C.SCALE); } }catch(e){}
+    // 自定义缩放按钮
+    const zi=document.getElementById('lzIn'), zo=document.getElementById('lzOut'), zf=document.getElementById('lzFit');
+    if(zi) zi.onclick=()=>{ try{ STATE.map.zoomIn(); }catch(e){} };
+    if(zo) zo.onclick=()=>{ try{ STATE.map.zoomOut(); }catch(e){} };
+    if(zf) zf.onclick=()=>{ try{ const arr=STATE.liveItems.map(x=>x.pos).concat([userPos()]);
+      if(arr.length){ const la=arr.map(p=>p[0]),lo=arr.map(p=>p[1]);
+        STATE.map.fitBounds(new TMap.LatLngBounds([new TMap.LatLng(Math.min.apply(null,la),Math.min.apply(null,lo)),new TMap.LatLng(Math.max.apply(null,la),Math.max.apply(null,lo))])); } }catch(e){} };
+    markerLayer=null; routeLayer=null;
+    // 容器尺寸可能在初始化时才稳定，延迟触发一次尺寸修正
+    setTimeout(()=>{ try{ if(STATE.map.resize) STATE.map.resize(); }catch(e){} }, 80);
+    if(STATE.trip.active && STATE.trip.stops.length>1 && TMap.MultiPolyline){
+      const path=STATE.trip.stops.map(s=>new TMap.LatLng(s.pos[0],s.pos[1]));
+      routeLayer=new TMap.MultiPolyline({map:STATE.map,styles:{t:new TMap.PolylineStyle({color:'#38bdf8',width:5,borderColor:'#fff',borderWidth:2,lineCap:'round'})},geometries:[{id:'troute',styleId:'t',paths:path}]});
+    }
+    refreshLiveData();
+  }catch(err){ STATE.live=false; localStorage.setItem(LS_LIVE,'0'); renderDiag(); renderRadar(compute()); } });
+}
+function refreshLiveData(){
+  if(!STATE.map) return;
+  const arr=compute(); drawLive(arr); renderList(arr); renderBanner(arr); renderTripReminders();
+  // 地图居中：仅在位置明显变化时重新居中，避免每次渲染都打断用户手动平移
+  const center=STATE.trip.active?centroid(STATE.trip.stops.map(s=>s.pos)):userPos();
+  if(!STATE.mapCenter || Math.abs(STATE.mapCenter[0]-center[0])>1e-5 || Math.abs(STATE.mapCenter[1]-center[1])>1e-5){
+    try{ STATE.map.setCenter(new TMap.LatLng(center[0],center[1])); }catch(e){}
+    STATE.mapCenter=center;
+  }
+  const hint=document.getElementById('mapHint');
+  if(STATE.trip.active){ if(hint) hint.textContent='🗺️ 实时地图 · 蓝点=行程站'; return; }
+  const same=(STATE.liveCenter && Math.abs(STATE.liveCenter[0]-center[0])<1e-6 && Math.abs(STATE.liveCenter[1]-center[1])<1e-6);
+  if(STATE.liveItems.length && same){
+    if(hint) hint.textContent='🗺️ 实时地图 · 已显示附近 '+STATE.liveItems.length+' 个公厕（真实数据）';
+    return;
+  }
+  if(hint) hint.textContent='🗺️ 实时地图 · 正在搜索附近公厕…';
+  searchNearby(center,(res)=>{
+    if(res.err){ STATE.liveErr=res.err; if(hint) hint.textContent='🗺️ 实时地图 · 搜索失败：'+liveErrText(res.err); renderDiag(); return; }
+    STATE.liveItems=res; STATE.liveCenter=center; STATE.liveErr=null;
+    const arr2=compute(); drawLive(arr2); renderList(arr2); renderBanner(arr2);
+    if(hint) hint.textContent='🗺️ 实时地图 · 已找到 '+res.length+' 个附近公厕（真实数据）';
+    renderDiag();
+  });
+}
+function getRest(id){ for(const s of SPOTS){ const r=s.restrooms.find(x=>x.id===id); if(r) return r; }
+  return STATE.liveItems.find(x=>x.id===id)||{name:id,pos:userPos()}; }
+
+/* ---------- 紧急横幅 ---------- */
+function renderBanner(arr){
+  const b=document.getElementById('banner');
+  if(STATE.emergency && arr.length){ const x=arr[0];
+    const isLive=STATE.live && STATE.liveItems.some(it=>it.id===x.r.id);
+    b.className='banner show';
+    b.innerHTML=`<div style="font-size:12px;opacity:.92;font-weight:600">🚨 最近可去 · ${x.r.name}</div><div class="big">步行约 ${x.min} 分钟 / ${Math.round(x.d)} 米</div>
+      <div style="font-size:13px;opacity:.95">${x.m.paper==='有'?'有纸 · ':x.m.paper==='无'?'无纸 · ':'纸未知 · '}${x.m.fee==='免费'?'免费':'收费'} · ${x.m.queue==='重'?'排队重':x.m.queue==='中'?'排队中':'排队轻'}</div>
+      <span class="go" data-id="${x.r.id}" data-nav="${isLive?1:0}">${isLive?'🧭 导航过去':'看详情 →'}</span>`;
+    b.querySelector('.go').onclick=()=>{ const el=b.querySelector('.go'); if(el.dataset.nav==='1') navigateTo(x.r); else openDetail(x.r.id); };
+  } else { b.className='banner'; b.innerHTML=''; }
+}
+
+/* ---------- 行程如厕提醒 ---------- */
+function renderTripReminders(){
+  const box=document.getElementById('tripReminders');
+  if(!STATE.trip.active || !STATE.trip.stops.length){ box.innerHTML=''; return; }
+  const items=STATE.trip.stops.map((st,i)=>{
+    const pool=st.spotId?SPOTS.find(s=>s.id===st.spotId).restrooms:allRestroomsFlat();
+    let cand=pool.map(r=>({r,d:haversine(st.pos,r.pos)})).filter(x=>passesFilter(x.r));
+    if(!cand.length) cand=pool.map(r=>({r,d:haversine(st.pos,r.pos)}));
+    cand.sort((a,b)=>a.d-b.d); const best=cand[0], m=merged(best.r);
+    const warn=!passesFilter(best.r)?' <span style="color:var(--amber)">（最近的可选不满足筛选）</span>':'';
+    const sug=best.d<120?'✅ 就在旁边，出发前解决':(m.paper==='无'?'⚠️ 可能无纸，自带纸巾':(m.queue==='重'?'⚠️ 当前排队重，错峰前往':'✅ 可放心前往'));
+    return `<div class="trip-rem"><span class="tn">${i+1}</span><div>
+      <div class="tname">${st.time?('<b>'+st.time+'</b> '):''}${st.name}</div>
+      <div class="tmeta">最近 <b>${best.r.name}</b> · 步行${walkMin(best.d)}分 · ${tagSummary(m)}${warn}</div>
+      <div class="tsug">${sug}</div></div></div>`;
+  }).join('');
+  box.innerHTML=`<div class="trip-head">🧭 行程如厕提醒（${STATE.trip.stops.length} 站）</div>${items}`;
+}
+
+/* ---------- 详情 + 众包上报 ---------- */
+const FIELDS=[['paper','有无厕纸',['有','无','未知']],['fee','收费',['免费','收费','消费免']],
+  ['sit','坐/蹲',['有','无']],['baby','母婴室',['有','无']],['accessible','无障碍',['有','无']],
+  ['third','第三卫生间',['有','无']],['queue','排队',['轻','中','重']]];
+function openDetail(id){
+  const r=getRest(id), m=merged(r);
+  const isLive=STATE.live && STATE.liveItems.some(x=>x.id===id);
+  const mask=document.getElementById('detailMask'), box=document.getElementById('detailModal');
+  let seg='';
+  FIELDS.forEach(([k,lab,opts])=>{ seg+=`<div class="report-item"><div class="lab">${lab}</div><div class="seg" data-k="${k}">`+
+    opts.map(o=>`<button class="${m[k]===o?'sel':''}" data-v="${o}">${o}</button>`).join('')+`</div></div>`; });
+  const cleanSeg=[1,2,3,4,5].map(n=>`<button class="${m.clean===n?'sel':''}" data-k="clean" data-v="${n}">${n}</button>`).join('');
+  box.innerHTML=`<div class="close"><span id="dClose">✕</span></div>
+    <div class="hero"><span class="h-type">${r.type}${r.pos?(' · '+r.pos[0].toFixed(4)+', '+r.pos[1].toFixed(4)):''}</span>
+      <div class="h-name">${r.name}</div></div>
+    <div class="field">${r.note?('📝 '+r.note+'<br>'):''}当前由 <b>${m.count||0}</b> 位旅客标记${m.updated?('，更新于 '+new Date(m.updated).toLocaleString()):''}</div>
+    <div class="tags" style="margin:8px 0">${tagHtml(m)}</div>
+    <h2 style="font-size:16px;margin-top:14px">✏️ 我也要标记（众包）</h2>
+    <div class="report-grid">${seg}<div class="report-item"><div class="lab">干净度 ${m.clean}/5</div><div class="seg clean-seg" data-k="clean">${cleanSeg}</div></div></div>
+    <div class="save-note" id="saveNote"></div>
+    ${isLive?'<button id="navBtn" class="btn-primary" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);box-shadow:0 6px 16px rgba(2,132,199,.35)">🧭 导航过去</button>':''}
+    <button id="submitRep" class="btn-green">提交标记</button>`;
+  mask.classList.add('show');
+  document.getElementById('dClose').onclick=()=>mask.classList.remove('show');
+  mask.onclick=e=>{ if(e.target===mask) mask.classList.remove('show'); };
+  const sel={};
+  box.querySelectorAll('.seg button').forEach(btn=>btn.onclick=()=>{ const k=btn.parentElement.dataset.k, v=btn.dataset.v;
+    btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); sel[k]=v; });
+  document.getElementById('submitRep').onclick=()=>{ const rep=STATE.reports[id]||{}; Object.assign(rep,sel);
+    rep.count=(rep.count||0)+1; rep.updated=Date.now(); STATE.reports[id]=rep; saveReports();
+    document.getElementById('saveNote').textContent='✓ 已记录，感谢你的标记！';
+    setTimeout(()=>{ mask.classList.remove('show'); render(); }, 700); };
+  const nb=document.getElementById('navBtn'); if(nb) nb.onclick=()=>navigateTo(r);
+}
+
+/* 一键导航：在当前地图内绘制步行路线（WebService 步行规划 + MultiPolyline），不再跳转新窗口 */
+function navigateTo(r){
+  if(!(STATE.live && STATE.mapKey && STATE.map)){ alert('导航功能需先启用实时地图（配置 Key）后使用。'); return; }
+  const up=userPos(); const host=location.hostname;
+  const fn='__nav_'+Math.random().toString(36).slice(2);
+  const t=setTimeout(()=>{ alert('步行路线请求超时，请稍后再试。'); }, 9000);
+  window[fn]=(j)=>{ clearTimeout(t); delete window[fn];
+    if(!j || j.status!==0){ alert('获取步行路线失败：'+(j&&j.message?j.message:'未知错误')+'。请确认该 Key 已启用 WebServiceAPI，且授权域名精确包含 '+host+'。'); return; }
+    try{
+      const pts=decodeQQPolyline(j.result.routes[0].polyline.slice());
+      const path=pts.map(p=>new TMap.LatLng(p[0],p[1]));
+      drawRoute(path);
+    }catch(e){ alert('路线解析失败：'+((e&&e.message)||e)); }
+  };
+  const s=document.createElement('script');
+  s.src='https://apis.map.qq.com/ws/direction/v1/walking/?from='+up[0]+','+up[1]+'&to='+r.pos[0]+','+r.pos[1]+'&key='+encodeURIComponent(STATE.mapKey)+'&output=jsonp&callback='+fn;
+  document.body.appendChild(s);
+}
+
+/* ---------- 实时 POI 搜索（有 Key） ---------- */
+function liveErrText(e){
+  const s=String(e);
+  const host=location.hostname;
+  if(s.indexOf('110')>=0) return '来源域名未被授权 —— 请到「腾讯位置服务控制台 → 我的应用 → 当前 Key → 授权域名」加入本页访问域名：<b style="color:#be123c">'+host+'</b>（须精确填写，勿用通配符 *.xxx），并确认已启用「WebServiceAPI / 地点搜索」产品。';
+  if(s.indexOf('311')>=0) return 'Key 未启用对应产品 —— 请确认已为该 Key 启用「WebServiceAPI / 地点搜索」，且授权域名含 '+host+'。';
+  if(s.indexOf('204')>=0||s.indexOf('302')>=0) return '请求过于频繁，请稍后再试';
+  if(s==='TIMEOUT') return '请求超时（可能是网络或被拦截）';
+  return '错误 '+s+'（地图能显示却搜不到，通常是该 Key 未启用 WebServiceAPI 或授权域名不含 '+host+'）';
+}
+/* 实时 POI 搜索：
+   方式一（优先）：JS API 自带的 TMap.service.Search；
+   方式二（兜底）：WebService JSONP。
+   两者都依赖「WebServiceAPI 已启用 + 授权域名含本页域名」。
+   两个关键词独立收集，任一成功即采用；全部失败才回退示例数据。 */
+function searchNearby(center, cb){
+  if(window.TMap && TMap.service && TMap.service.Search){
+    jsSearch(center, res=>{
+      if(res && !res.err && res.length){ cb(res); }
+      else { jsonpSearch(center, cb); }   // 方式一失败，再试 JSONP 兜底
+    });
+    return;
+  }
+  jsonpSearch(center, cb);
+}
+function makeLive(d){
+  if(!d || !d.location) return null;
+  if(!isToilet(d)) return null;   // 增强判定：过滤非厕所 POI
+  const lat=d.location.lat, lng=d.location.lng;
+  return {id:'live_'+lat.toFixed(5)+'_'+lng.toFixed(5), name:d.title||'公厕', pos:[lat,lng],
+    type:'实时·'+(d.category||'公厕'), cat:d.category||'', paper:'未知', fee:'未知', sit:'未知', baby:'未知', accessible:'未知', third:'未知', clean:3, queue:'未知', note:d.address||'', addr:d.address||''};
+}
+function jsSearch(center, cb){
+  try{
+    const svc=new TMap.service.Search({pageSize:20});
+    const latlng=new TMap.LatLng(center[0], center[1]);
+    const seen=new Set(), out=[]; let done=0; const total=2; let lastErr=null;
+    const push=(arr)=>{ (arr||[]).forEach(d=>{ const it=makeLive(d); if(!it) return; if(seen.has(it.id)) return; seen.add(it.id); out.push(it); }); };
+    ['公厕','卫生间'].forEach(kw=>{
+      svc.searchNearby({keyword:kw, center:latlng, radius:Math.min(STATE.radius,1000), pageSize:20})
+        .then(res=>{ push(res.data); })
+        .catch(e=>{ lastErr=(e&&e.message)||'SEARCH_FAIL'; })
+        .then(()=>{ if(++done===total){ if(out.length) cb(out); else cb({err:lastErr||'EMPTY'}); } });
+    });
+  }catch(e){ cb({err:(e&&e.message)||'SEARCH_INIT_FAIL'}); }
+}
+function jsonpSearch(center, cb){
+  let pending=2, done=false, errCode=null;
+  const seen=new Set(), out=[];
+  const finish=()=>{ if(done) return; done=true; if(errCode) return cb({err:errCode}); cb(out); };
+  ['公厕','卫生间'].forEach(kw=>{
+    const fn='__jcs_'+Math.random().toString(36).slice(2);
+    const t=setTimeout(()=>{ if(!done){ done=true; cb({err:'TIMEOUT'}); } }, 9000);
+    window[fn]=(j)=>{ clearTimeout(t); delete window[fn];
+      if(!j || j.status!==0){ errCode=(j?j.status+':'+(j.message||'error'):'parse error'); if(--pending<=0) finish(); return; }
+      (j.data||[]).forEach(d=>{ const it=makeLive(d); if(!it) return; if(seen.has(it.id)) return; seen.add(it.id); out.push(it); });
+      if(--pending<=0) finish(); };
+    const s=document.createElement('script');
+    s.src='https://apis.map.qq.com/ws/place/v1/search?keyword='+encodeURIComponent(kw)+'&boundary=nearby('+center[0]+','+center[1]+','+Math.min(STATE.radius,1000)+',1)&page_size=20&key='+encodeURIComponent(STATE.mapKey)+'&output=jsonp&callback='+fn;
+    s.onerror=()=>{ clearTimeout(t); delete window[fn]; if(--pending<=0) finish(); };
+    document.body.appendChild(s);
+  });
+}
+
+/* ---------- 行程相关 ---------- */
+function openTrip(){
+  const ex=document.getElementById('exTripSel');
+  if(!ex.dataset.filled){ ex.innerHTML=EXAMPLE_TRIPS.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+    document.getElementById('stopSpot').innerHTML=SPOTS.map(s=>`<option value="${s.id}">${s.name}</option>`).join(''); ex.dataset.filled='1'; }
+  renderStopList();
+  document.getElementById('exitTripBtn').style.display=STATE.trip.active?'block':'none';
+  document.getElementById('tripMask').classList.add('show');
+}
+function closeTrip(){ document.getElementById('tripMask').classList.remove('show'); }
+function renderStopList(){
+  const el=document.getElementById('stopList');
+  document.getElementById('stopCount').textContent=STATE.trip.stops.length;
+  el.innerHTML=STATE.trip.stops.map((s,i)=>`<div class="si"><span>${i+1}. ${s.name}${s.time?'（'+s.time+'）':''} · ${(SPOTS.find(x=>x.id===s.spotId)||{}).name||''}</span><button data-i="${i}">删除</button></div>`).join('');
+  el.querySelectorAll('button').forEach(b=>b.onclick=()=>{ STATE.trip.stops.splice(+b.dataset.i,1); renderStopList(); });
+}
+function loadExampleTrip(){ const t=EXAMPLE_TRIPS.find(x=>x.id===document.getElementById('exTripSel').value);
+  if(!t) return; STATE.trip.stops=t.stops.map(s=>({...s})); STATE.trip.active=true; closeTrip(); render(); }
+function addStop(){ const name=document.getElementById('stopName').value.trim(); if(!name){alert('请填地点名');return;}
+  const spotId=document.getElementById('stopSpot').value, time=document.getElementById('stopTime').value.trim();
+  const pos=SPOTS.find(s=>s.id===spotId).center.slice();
+  STATE.trip.stops.push({name,spotId,time,pos}); document.getElementById('stopName').value=''; document.getElementById('stopTime').value=''; renderStopList(); }
+function applyTrip(){ if(!STATE.trip.stops.length){alert('请先添加或载入行程点');return;} STATE.trip.active=true; closeTrip(); render(); }
+function exitTrip(){ STATE.trip.active=false; STATE.trip.stops=[]; closeTrip(); render(); }
+
+/* ---------- 诊断 ---------- */
+function renderDiag(){
+  const el=document.getElementById('diag');
+  const mode=STATE.live&&STATE.mapKey?'<span class="diag-ok">实时地图（已启用）</span>':'<span class="diag-warn">离线雷达（未配置 Key）</span>';
+  const total=allItems().length;
+  const repN=Object.keys(STATE.reports).length;
+  const tripInfo=STATE.trip.active?` ｜ <b>行程模式：${STATE.trip.stops.length}站</b>`:'';
+  el.innerHTML=`<b>诊断</b> ｜ 地图模式：${mode} ｜ 当前数据：<b>${total}</b> 个 ｜ 你的众包标记：<b>${repN}</b> 条${tripInfo}<br>
+    ${STATE.live&&STATE.mapKey?'':'未配置腾讯地图 Key：当前为离线雷达，内置 5 大景区示例数据，零配置即可演示。配置 Key 后可启用实时地图与真实公厕 POI 搜索（需在腾讯位置服务控制台添加本页访问域名为授权域名）。'}
+    ${STATE.live&&STATE.mapKey&&!STATE.liveItems.length?'<br><span class="diag-warn">⚠️ 实时搜索未返回真实数据（通常是该 Key 未启用 WebServiceAPI，或授权域名未含本页域名 <b>'+location.hostname+'</b>）。当前列表/地图显示的<b>是内置示例厕所，并非你真实附近的厕所</b>。请打开 ⚙️ 设置，按提示把该域名加入 Key 的授权域名后刷新。</span>':''}`;
+}
+
+/* ---------- 主渲染 ---------- */
+function render(){
+  document.getElementById('emergencyBtn').classList.toggle('on',STATE.emergency);
+  document.getElementById('tripBtn').classList.toggle('on',STATE.trip.active);
+  document.getElementById('refreshBtn').style.display=(STATE.live&&STATE.mapKey)?'inline-block':'none';
+  document.getElementById('spotSel').value = STATE.spotChosen?STATE.spot:'';
+  const rs=document.getElementById('rangeSel'); if(rs) rs.value=String(STATE.radius);
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',STATE.filters[c.dataset.f]));
+  const arr=compute();
+  renderList(arr); renderBanner(arr); renderTripReminders();
+  if(STATE.live && STATE.mapKey){ ensureLiveMap(); } else { clearMarkers(); STATE.map=null; STATE.mapCenter=null; renderRadar(arr); }
+  renderDiag();
+}
+
+/* ---------- 事件 ---------- */
+function init(){
+  loadLS();
+  const sel=document.getElementById('spotSel');
+  sel.innerHTML='<option value="">— 选景区看示例（离线）—</option>'+SPOTS.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  sel.value='';
+  sel.onchange=()=>{ if(!sel.value){ STATE.spotChosen=false; } else { STATE.spot=sel.value; STATE.spotChosen=true; } STATE.user=null; STATE.liveItems=[]; render(); };
+  const rs=document.getElementById('rangeSel');
+  rs.innerHTML='<option value="500">500 米</option><option value="1000">1 公里</option><option value="3000">3 公里</option>';
+  rs.value=String(STATE.radius);
+  rs.onchange=()=>{ STATE.radius=parseInt(rs.value,10)||1000; STATE.liveItems=[]; render(); };
+  document.getElementById('emergencyBtn').onclick=()=>{ STATE.emergency=!STATE.emergency; render();
+    if(STATE.emergency){ const a=compute(); if(a.length) openDetail(a[0].r.id); } };
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ const f=c.dataset.f; STATE.filters[f]=!STATE.filters[f]; render(); });
+  document.getElementById('locBtn').onclick=()=>{ if(!navigator.geolocation){ alert('当前环境不支持定位，已默认使用景区中心。'); return; }
+    navigator.geolocation.getCurrentPosition(p=>{ STATE.user=wgs84togcj02(p.coords.latitude,p.coords.longitude); STATE.liveItems=[]; render(); },
+      ()=>{ alert('定位失败，继续使用当前中心。'); }); };
+  document.getElementById('gearBtn').onclick=()=>{ document.getElementById('keyInput').value=STATE.mapKey;
+    document.getElementById('liveChk').checked=STATE.live;
+    document.getElementById('whitelistHost').textContent=location.hostname;
+    document.getElementById('whitelistTip').textContent='若启用实时地图后仍搜不到附近厕所，请确认已为该 Key 启用 WebServiceAPI，且授权域名精确包含上面这个域名。';
+    document.getElementById('setMask').classList.add('show'); };
+  document.getElementById('setClose').onclick=()=>document.getElementById('setMask').classList.remove('show');
+  document.getElementById('setMask').onclick=e=>{ if(e.target.id==='setMask') document.getElementById('setMask').classList.remove('show'); };
+  document.getElementById('saveKey').onclick=()=>{ const newKey=document.getElementById('keyInput').value.trim();
+    const newLive=document.getElementById('liveChk').checked && !!newKey;
+    const keyChanged=(newKey!==STATE.mapKey);
+    STATE.mapKey=newKey; STATE.live=newLive;
+    STATE.liveItems=[]; STATE.liveErr=null;
+    localStorage.setItem(LS_KEY,STATE.mapKey); localStorage.setItem(LS_LIVE,STATE.live?'1':'0');
+    document.getElementById('setMask').classList.remove('show');
+    if(keyChanged && window.TMap){ alert('Key 已更新，页面将刷新以应用新 Key。'); location.reload(); return; }
+    render(); };
+  document.getElementById('clearKey').onclick=()=>{ if(!confirm('确定清除 Key 并回到离线雷达模式？')) return;
+    STATE.mapKey=''; STATE.live=false; STATE.liveItems=[]; STATE.liveErr=null;
+    localStorage.setItem(LS_KEY,''); localStorage.setItem(LS_LIVE,'0');
+    document.getElementById('setMask').classList.remove('show');
+    if(window.TMap){ location.reload(); return; } render(); };
+  // 行程
+  document.getElementById('tripBtn').onclick=openTrip;
+  document.getElementById('refreshBtn').onclick=()=>{ if(!(STATE.live&&STATE.mapKey)) return; STATE.liveItems=[]; STATE.liveErr=null; render(); };
+  document.getElementById('tripClose').onclick=closeTrip;
+  document.getElementById('tripMask').onclick=e=>{ if(e.target.id==='tripMask') closeTrip(); };
+  document.getElementById('loadExBtn').onclick=loadExampleTrip;
+  document.getElementById('addStopBtn').onclick=addStop;
+  document.getElementById('applyTripBtn').onclick=applyTrip;
+  document.getElementById('exitTripBtn').onclick=exitTrip;
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ ['detailMask','setMask','tripMask'].forEach(id=>document.getElementById(id).classList.remove('show')); } });
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
+  window.addEventListener('resize', ()=>{ VIEW.sig=''; if(STATE.map){ try{ if(STATE.map.resize) STATE.map.resize(); }catch(e){} } render(); });
+  render();
+}
+init();
+</script>
+</body>
+</html>
